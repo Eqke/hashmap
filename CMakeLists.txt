@@ -2,9 +2,11 @@ cmake_minimum_required(VERSION 3.5)
 
 project(hashmap LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_executable(main main.cpp)
 
-add_executable(hashmap hashmap.cpp hashmap.h)
+add_library(HashmapLib SHARED hashmap.cpp hashmap.h)
+
+target_link_libraries(HashmapLib)

@@ -1,9 +1,8 @@
 #include <iostream>
-
+#include "hashmap.h"
 using namespace std;
 
 int main()
 {
-  cout << "Hello World!" << endl;
-  return 0;
+ HashMap a;
 }
