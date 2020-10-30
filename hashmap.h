@@ -11,18 +11,17 @@ class HashMap
 {
 private:
   unsigned int _countElements;
-  unsigned int _size;
-  std::vector<std::forward_list<data>* > _lists();
-  const unsigned int _defSize = 4;
+  size_t _size;
+  std::vector<std::forward_list<pair<key,data>>* > _lists;
+  const size_t _defSize = 4;
   key HashFunction(key);
 public:
-  int GetCountElements() const;
   std::vector<std::forward_list<std::pair<key,data>>*> GetList() const;
-  int GetSize() const;
+  size_t GetSize() const;
 
 
-  void SetCountElements(int countElements);
-  void SetSize(int size);
+  void SetCountElements(unsigned int countElements);
+  void SetSize(size_t size);
 
   HashMap();
   ~HashMap();
