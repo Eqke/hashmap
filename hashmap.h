@@ -12,9 +12,9 @@ class HashMap
 private:
   unsigned int _countElements;
   size_t _size;
-  std::vector<std::forward_list<pair<key,data>>* > _lists;
+  std::vector<std::forward_list<std::pair<key,data>> > _lists;
   const size_t _defSize = 4;
-  key HashFunction(key);
+  auto HashFunction(key);
 public:
   std::vector<std::forward_list<std::pair<key,data>>*> GetList() const;
   size_t GetSize() const;

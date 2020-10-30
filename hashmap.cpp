@@ -1,10 +1,8 @@
 #include "hashmap.h"
-#include "hashmap.h"
-#include "hashmap.h"
-#include "hashmap.h"
+
 
 template<class key, class data>
-key HashMap<key, data>::HashFunction(key)
+auto HashMap<key, data>::HashFunction(key)
 {
 	return key % this->_countElements;
 }
