@@ -1,27 +1,27 @@
 #pragma once
 #include <vector>
 #include <forward_list>
-///
-/// @Hashmap - класс hashmap
-/// @key - ключ
-/// @data - содержание/значение/данные
-///
-template<class key, class data>
+#include <string.h>
+#include <iostream>
+#include <exception>
+
+template<class data>
 class HashMap
 {
 private:
   unsigned int _countElements;
   size_t _size;
-  std::vector<std::forward_list<std::pair<key,data>> > _lists;
-  const size_t _defSize = 4;
-  auto HashFunction(key);
+  std::vector<std::forward_list<std::pair<char*,data>>> _lists;
+  static constexpr size_t _defSize = 4;
+  int HashFunction(char* key);
 public:
-  std::vector<std::forward_list<std::pair<key,data>>*> GetList() const;
+  std::vector<std::forward_list<std::pair<char*,data>>*> GetHashMap() const;
   size_t GetSize() const;
 
 
-  void SetCountElements(unsigned int countElements);
-  void SetSize(size_t size);
+  void SetCountElements(int countElements);
+  void SetSize(int size);
+  void SetList();
 
   HashMap();
   ~HashMap();
