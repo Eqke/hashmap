@@ -12,15 +12,15 @@ int HashMap<data>::HashFunction(char* key)
 }
 
 template<class data>
-std::vector<std::forward_list<std::pair<char*, data>>*> HashMap<data>::GetHashMap() const
+std::vector<std::forward_list<std::pair<char*, data>>> HashMap<data>::GetHashMap() const
 {
-	return this->_lists;
+    return this->_lists;
 }
 
 template<class data>
 size_t HashMap<data>::GetSize() const
 {
-	return this->_size;
+    return this->_size;
 }
 
 template<class data>
@@ -34,20 +34,58 @@ void HashMap<data>::SetCountElements(int countElements)
 }
 
 template<class data>
-void HashMap<data>::SetSize(int size)
+void HashMap<data>::SetListConfigurations(int size)
 {
   if (size < 0)
     {
       throw ("size must be positive(more then zero)");
     }
   this->_size = size;
+  this->_lists = std::vector<std::forward_list<std::pair<char*,data>>> (this->_size);
 }
+
+template<class data>
+bool HashMap<data>::IsEmpty()
+{
+  if (this->_size == 0)
+    {
+      return true;
+    }
+  else
+    {
+      return false;
+    }
+}
+
+template<class data>
+size_t HashMap<data>::size()
+{
+  return this->_countElements;
+}
+
+template<class data>
+size_t HashMap<data>::max_size()
+{
+  return this->_size;
+}
+
+
+//template<class data>
+//void HashMap<data>::SetList(size_t size)
+//{
+//  this->_lists = std::vector<std::forward_list<std::pair<char*,data>>> (size);
+//}
 
 template<class data>
 HashMap<data>::HashMap()
 {
-  SetSize(_defSize);
+  SetListConfigurations(_defSize);
   SetCountElements(0);
+}
 
+template<class data>
+HashMap<data>::~HashMap()
+{
+  delete [] this->_lists;
 }
 
