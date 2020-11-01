@@ -1,10 +1,10 @@
 #include "hashmap.h"
 
-template<class data>
-int HashMap<data>::HashFunction(char* key)
+template<class Key, class Data>
+size_t HashMap<Key, Data>::HashFunction(Key key)
 {
   int sum = 0;
-  for (size_t i = 0; i < sizeof(key); i++)
+  for (auto character:key)
     {
         sum+=key[i];
     }
