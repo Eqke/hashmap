@@ -5,9 +5,10 @@ project(hashmap LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-#add_library(HashmapLib hashmap.cpp hashmap.h)
+add_library(HashmapLib hashmap.cpp hashmap.h)
 
-#target_link_libraries(HashmapLib)
+target_link_libraries(HashmapLib)
+
 set(ListLib list.cpp list.h)
 #set(ListLib HEADER lish.h)
 

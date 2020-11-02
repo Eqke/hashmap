@@ -1,30 +1,30 @@
 #include "hashmap.h"
 
 template<class Key, class Data>
-size_t HashMap<Key, Data>::HashFunction(Key key)
+size_t HashMap<Key, Data>::HashFunction(char* key)
 {
   int sum = 0;
-  for (auto character:key)
+  for (size_t i= 0; i<size(key); i++)
     {
-        sum+=key[i];
+        sum += key[i];
     }
   return sum % this->_size;
 }
 
-template<class data>
-std::vector<std::forward_list<std::pair<char*, data>>> HashMap<data>::GetHashMap() const
+template<class Key, class Data>
+std::vector<std::forward_list<std::pair<char*, Data>>> HashMap<Key, Data>::GetHashMap() const
 {
     return this->_lists;
 }
 
-template<class data>
-size_t HashMap<data>::GetSize() const
+template<class Key, class Data>
+size_t HashMap<Key, Data>::GetSize() const
 {
     return this->_size;
 }
 
-template<class data>
-void HashMap<data>::SetCountElements(int countElements)
+template<class Key, class Data>
+void HashMap<Key, Data>::SetCountElements(int countElements)
 {
   if (countElements < 0)
     {
@@ -33,19 +33,19 @@ void HashMap<data>::SetCountElements(int countElements)
   this->_countElements = countElements;
 }
 
-template<class data>
-void HashMap<data>::SetListConfigurations(int size)
+template<class Key, class Data>
+void HashMap<Key, Data>::SetListConfigurations(int size)
 {
   if (size < 0)
     {
       throw ("size must be positive(more then zero)");
     }
   this->_size = size;
-  this->_lists = std::vector<std::forward_list<std::pair<char*,data>>> (this->_size);
+  this->_lists = std::vector<std::forward_list<std::pair<char*,Data>>> (this->_size);
 }
 
-template<class data>
-bool HashMap<data>::IsEmpty()
+template<class Key, class Data>
+bool HashMap<Key, Data>::IsEmpty()
 {
   if (this->_size == 0)
     {
@@ -57,34 +57,34 @@ bool HashMap<data>::IsEmpty()
     }
 }
 
-template<class data>
-size_t HashMap<data>::size()
+template<class Key, class Data>
+size_t HashMap<Key, Data>::size()
 {
   return this->_countElements;
 }
 
-template<class data>
-size_t HashMap<data>::max_size()
+template<class Key, class Data>
+size_t HashMap<Key, Data>::max_size()
 {
   return this->_size;
 }
 
 
-//template<class data>
-//void HashMap<data>::SetList(size_t size)
+//template<class Key, class Data>
+//void HashMap<Key, Data>::SetList(size_t size)
 //{
 //  this->_lists = std::vector<std::forward_list<std::pair<char*,data>>> (size);
 //}
 
-template<class data>
-HashMap<data>::HashMap()
+template<class Key, class Data>
+HashMap<Key, Data>::HashMap()
 {
   SetListConfigurations(_defSize);
   SetCountElements(0);
 }
 
-template<class data>
-HashMap<data>::~HashMap()
+template<class Key, class Data>
+HashMap<Key, Data>::~HashMap()
 {
   delete [] this->_lists;
 }

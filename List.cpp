@@ -99,3 +99,33 @@ void List<Data>::PushFront(Data data)
       SetFirst(newUnit);
     }
 }
+
+template <class Data>
+List<Data>::List()
+{
+  SetFirst(nullptr);
+  SetLast(nullptr);
+}
+
+template<class Data>
+List<Data>::~List<Data>()
+{
+  if (!IsEmpty())
+    {
+  Unit<Data>* nextUnit, deleteUnit;
+  deleteUnit = GetFirst();
+//  do
+//    {
+//      nextUnit = deleteUnit->GetNextPtr();
+//      deleteUnit->SetNextPtr(nullptr);
+//      delete deleteUnit;
+//      deleteUnit = nextUnit;
+//    }while(nextUnit!=nullptr);
+//    }
+//  for(auto deleteUnit:this->_last)
+//    {
+
+//    }
+//    }
+}
+}
