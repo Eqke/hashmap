@@ -1,13 +1,13 @@
 
 template<class Data>
-class Unit
+class Node
 {
 private:
-  Unit<Data>* _nextPtr;
+  Node<Data>* _nextPtr;
   Data _data;
 
 public:
-  Unit<Data>* GetNextPtr() const
+  Node<Data>* GetNextPtr() const
   {
     return this->_nextPtr;
   }
@@ -19,23 +19,23 @@ public:
   {
     this->_data = data;
   }
-  void SetNextPtr(Unit* nextPtr)
+  void SetNextPtr(Node* nextPtr)
   {
     this->_nextPtr = nextPtr;
   }
-  Unit()
+  Node()
   {}
-  Unit(Data data)
+  Node(Data data)
   {
     SetNextPtr(nullptr);
     SetData(data);
   }
-  Unit(Data data, Unit* nextPointer)
+  Node(Data data, Node* nextPointer)
   {
     SetNextPtr(nextPointer);
     SetData(data);
   }
-  ~Unit()
+  ~Node()
   {}
 
 };
@@ -45,80 +45,80 @@ template <class Data>
 class List
 {
 private:
-   Unit<Data>* _first;
-   Unit<Data>* _last;
-   void SetFirst(Unit<Data>* firstPtr)
+   Node<Data>* _first;
+   Node<Data>* _last;
+   void SetFirst(Node<Data>* firstPtr)
    {
      this->_first = firstPtr;
    }
-   void SetLast(Unit<Data>* lastPtr)
+   void SetLast(Node<Data>* lastPtr)
    {
      this->_last = lastPtr;
    }
 public:
-   Unit<Data>* GetFirst() const
+   Node<Data>* GetFirst() const
    {
      return this->_first;
    }
-   Unit<Data>* GetLast() const
+   Node<Data>* GetLast() const
    {
      return this->_last;
    }
 
-   void PushBack(Unit<Data>* unit)
+   void PushBack(Node<Data>* node)
    {
      if (IsEmpty())
        {
-         SetFirst(unit);
-         SetLast(unit);
+         SetFirst(node);
+         SetLast(node);
        }
      else
        {
-         this->_last->SetNextPtr(unit);
-         SetLast(unit);
+         this->_last->SetNextPtr(node);
+         SetLast(node);
        }
    }
-   void PushFront(Unit<Data>* unit)
+   void PushFront(Node<Data>* node)
    {
      if (IsEmpty())
        {
-         SetFirst(unit);
-         SetLast(unit);
+         SetFirst(node);
+         SetLast(node);
        }
      else
        {
-         unit->SetNextPtr(GetFirst());
-         SetFirst(unit);
+         node->SetNextPtr(GetFirst());
+         SetFirst(node);
        }
    }
    void PushBack(Data data)
    {
-     Unit<Data>* newUnit = new Unit<Data>;
-     newUnit->SetData(data);
+     Node<Data>* newNode = new Node<Data>;
+     newNode->SetData(data);
      if (IsEmpty())
        {
-         SetFirst(newUnit);
-         SetLast(newUnit);
+         SetFirst(newNode);
+         SetLast(newNode);
        }
      else
        {
-         newUnit->SetNextPtr(GetLast());
-         SetLast(newUnit);
+         newNode->SetNextPtr(GetLast());
+         SetLast(newNode);
        }
    }
    void PushFront(Data data)
    {
-     Unit<Data>* newUnit = new Unit<Data>(data);
-     newUnit->SetData(data);
+     Node<Data>* newNode = new Node<Data>(data);
+     newNode->SetData(data);
      if (IsEmpty())
        {
-         SetFirst(newUnit);
-         SetLast(newUnit);
+         SetFirst(newNode);
+         SetLast(newNode);
        }
      else
        {
-         newUnit->SetNextPtr(GetFirst());
-         SetFirst(newUnit);
+         newNode->SetNextPtr(GetFirst());
+         SetFirst(newNode);
        }
    }
    bool IsEmpty()
@@ -141,19 +141,20 @@ public:
    {
      if (!IsEmpty())
        {
-     Unit<Data>* nextUnit, deleteUnit;
-     deleteUnit = GetFirst();
+     Node<Data>* nextNode, deleteNode;
+     deleteNode = GetFirst();
 //     do
 //       {
-//         nextUnit = deleteUnit->GetNextPtr();
-//         deleteUnit->SetNextPtr(nullptr);
-//         delete deleteUnit;
-//         deleteUnit = nextUnit;
-//       }while(nextUnit!=nullptr);
-     for(auto deleteUnit:*this)
+//         nextNode = deleteNode->GetNextPtr();
+//         deleteNode->SetNextPtr(nullptr);
+//         delete deleteNode;
+//         deleteNode = nextNode;
+//       }while(nextNode!=nullptr);
+     for(auto deleteNode:*this)
        {
-         deleteUnit->SetNextPtr(nullptr);
-         delete deleteUnit;
+         nextNode = deleteNode->GetNextPtr();
+         deleteNode->SetNextPtr(nullptr);
+         delete deleteNode;
        }
        }
    }

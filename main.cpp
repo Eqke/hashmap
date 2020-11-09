@@ -7,15 +7,29 @@
 
 int main()
 {
-
   HashMap<std::string, int> map;
-  map.Add("red",2);
-  map.Add("red1",3);
-  map.Add("red",4);
-  map.Add("blue",1);
-  std::cout << map["red"] << "\n";
-  HashMap<std::string, int> mp = map;
-  std::cout << map.Size() << " " << mp.Size();
+  map.insert("red",2);
+  map.insert("blue",3);
+  map.insert("red",3);
+  map.insert("green",4);
+  map.insert("red",3);
+  map.insert("green",4);
+//  HashMap<int, int> map;
+//  map.insert(3,2);
+//  map.insert(2,3);
+//  map.insert(5,3);
+//  map.insert(6,4);
+//  map.insert(7,3);
+//  map.insert(2,4);
+//  for (size_t i = 0; i < map.Max_size();i++)
+//    {
+//      map[i];
+//    }
+//  for (size_t i = 0; i < map.Max_size();i++)
+//    {
+//      map[i];
+//    }
+  //std::cout << std::is_arithmetic_v<std::string>;
   return 0;
 }
 
