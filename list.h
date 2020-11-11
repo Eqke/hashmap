@@ -1,11 +1,19 @@
 
 template<class Data>
-class Node
+class Node final
 {
 private:
   Node<Data>* _nextPtr;
   Data _data;
 
+  void SetData(Data data)
+  {
+    this->_data = data;
+  }
+  void SetNextPtr(Node* nextPtr)
+  {
+    this->_nextPtr = nextPtr;
+  }
 public:
   Node<Data>* GetNextPtr() const
   {
@@ -14,14 +22,6 @@ public:
   Data GetData() const
   {
     return this->_data;
-  }
-  void SetData(Data data)
-  {
-    this->_data = data;
-  }
-  void SetNextPtr(Node* nextPtr)
-  {
-    this->_nextPtr = nextPtr;
   }
   Node()
   {}
@@ -143,16 +143,12 @@ public:
        {
      Node<Data>* nextNode, deleteNode;
      deleteNode = GetFirst();
-//     do
-//       {
-//         nextNode = deleteNode->GetNextPtr();
-//         deleteNode->SetNextPtr(nullptr);
-//         delete deleteNode;
-//         deleteNode = nextNode;
-//       }while(nextNode!=nullptr);
      for(auto deleteNode:*this)
        {
-         nextNode = deleteNode->GetNextPtr();
+         if (deleteNode->GetNextPtr() != nullptr)
+           {
+              nextNode = deleteNode->GetNextPtr();
+           }
          deleteNode->SetNextPtr(nullptr);
          delete deleteNode;
        }

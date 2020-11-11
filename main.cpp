@@ -11,26 +11,19 @@ int main()
   map.insert("red",2);
   map.insert("blue",3);
   map.insert("red",3);
+  map.insert("appl",4);
   map.insert("green",4);
-  map.insert("red",3);
   map.insert("green",4);
-//  HashMap<int, int> map;
-//  map.insert(3,2);
-//  map.insert(2,3);
-//  map.insert(5,3);
-//  map.insert(6,4);
-//  map.insert(7,3);
-//  map.insert(2,4);
-//  for (size_t i = 0; i < map.Max_size();i++)
-//    {
-//      map[i];
-//    }
-//  for (size_t i = 0; i < map.Max_size();i++)
-//    {
-//      map[i];
-//    }
-  //std::cout << std::is_arithmetic_v<std::string>;
-  return 0;
+  for (size_t i = 0; i < map.Max_size();i++)
+    {
+      std::cout << i << " ";
+      map[i];
+    }
+  HashMap<std::string, int> map1 = map;
+  for (size_t i = 0; i < map.Max_size();i++)
+    {
+      std::cout << i << " ";
+      map1[i];
+    }
 }
-
 
