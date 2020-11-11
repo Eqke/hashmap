@@ -305,7 +305,9 @@ public:
     for (size_t i = 0; i < this->_size;i++)
       {
         _lists[i]->clear();
+        delete _lists[i];
       }
     _lists.clear();
+    delete [] _lists;
   }
 };

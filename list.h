@@ -36,7 +36,9 @@ public:
     SetData(data);
   }
   ~Node()
-  {}
+  {
+
+  }
 
 };
 
