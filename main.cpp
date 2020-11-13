@@ -7,7 +7,7 @@
 
 int main()
 {
-//  HashMap<std::string, int> map;
+    HashMap<std::string, int> map;
 //  map.insert("red",2);
 //  map.insert("blue",3);
 //  map.insert("red",3);
@@ -25,8 +25,7 @@ int main()
 //      std::cout << i << " ";
 //      map1[i];
 //    }
-  std::unordered_map<std::string, int> map2;
-  map2.insert(std::pair<std::string, int> ("2",3));
-  std::cout << map2.size() << " " << map2.max_size();
+  std::vector<std::forward_list<std::pair<std::string, int>>> lists;
+  lists.push_back(std::forward_list<std::pair<std::string, int>>());
 }
 
