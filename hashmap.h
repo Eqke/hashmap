@@ -12,12 +12,12 @@
 ///@class Hashmap
 ///@param in Key Ключ
 ///@param in Data Значение
-///@private _countElements Количество элементов
+///@private _count_elements Количество элементов
 ///@private _size Размер Hashmap
 ///@private _lists Сам контейнер, где будут находится данные
-///@private _defSize Размер для дефолтного конструктора
-///@private _growthFactor Фактор роста, который регулирует размерность HashMap
-///@private _loadFactor Фактор загруженности, показывает дейстительное отношение количества к размеру
+///@private _def_size Размер для дефолтного конструктора
+///@private _growth_factor Фактор роста, который регулирует размерность HashMap
+///@private _load_factor Фактор загруженности, показывает дейстительное отношение количества к размеру
 /// (считается, что это среднее число элементов одну ячейку контейнера
 
 template<class Key,
@@ -62,10 +62,10 @@ public:
     {
       return _ptr == other._ptr;
     }
-    bool operator!=(iterator& other) const
-    {
-      return _ptr != other._ptr;
-    }
+//    bool operator!=(iterator& other) const
+//    {
+//      return _ptr != other._ptr;
+//    }
 //    class iterator::reference operator*()
 //    {
 //      return *_ptr;
@@ -73,17 +73,17 @@ public:
   };
 private:
   iterator _iterator;
-  unsigned int _countElements;
+  unsigned int _count_elements;
   size_t _size;
   std::vector< std::forward_list< std::pair< const Key,Data > > > _lists;
-  static constexpr size_t _defSize = 4;
-  static constexpr double _growthFactor = 0.66;
-  double _loadFactor;
+  static constexpr size_t _def_size = 4;
+  static constexpr double _growth_factor = 0.66;
+  double _load_factor;
 
   ///Функция рехеширования
   void rehash()
   {
-    std::pair<Key, Data> array[_countElements];
+    std::pair<Key, Data> array[_count_elements];
     size_t index = 0;
     for (size_t index = 0; index < _size;index++)
       {
@@ -140,8 +140,8 @@ private:
         throw std::runtime_error("size must be positive(more then zero)");
       }
     this->_size = size;
-    this->_countElements = 0;
-    this->_loadFactor = static_cast<double>(_countElements/_countElements);
+    this->_count_elements = 0;
+    this->_load_factor = static_cast<double>(_count_elements/_count_elements);
     for (size_t index = 0; index < _size; index++)
       {
         _lists.push_back(std::forward_list<std::pair<const Key, Data>>());
@@ -166,7 +166,7 @@ private:
 public:
   iterator& begin()
   {
-    if (_countElements != 0)
+    if (_count_elements != 0)
     {
     _iterator._it_now = 0;
     while(!_lists[_iterator._it_now].empty())
@@ -204,7 +204,7 @@ public:
   ///@return возвращает кол-во элементов в контайнере
   size_t size() const
   {
-    return _countElements;
+    return _count_elements;
   }
   ///@return возвращает максимальную вместительность контейнера
   size_t capacity() const
@@ -214,15 +214,15 @@ public:
   ///Вставка элемента
   void insert(const Key key, Data data)
   {
-    if (_loadFactor >= _growthFactor)
+    if (_load_factor >= _growth_factor)
       {
         rehash();
       }
     std::pair<const Key, Data> newData = std::make_pair(key, data);
     size_t hash = HashFunction(key);
     _lists[hash].push_front(newData);
-    _countElements++;
-    _loadFactor = static_cast<double>(_countElements/_size);
+    _count_elements++;
+    _load_factor = static_cast<double>(_count_elements/_size);
   }
   ///находит элемент с конкретным ключом
   std::pair<const Key, Data>* Find(const Key key) const
@@ -310,7 +310,7 @@ public:
               {
                 node++;
                 _lists[hash].erase_after(before);
-                _countElements--;
+                _count_elements--;
               }
             else
               {
@@ -318,45 +318,25 @@ public:
                 node++;
               }
           }
-        _loadFactor = static_cast<double>(_countElements/_size);
+        _load_factor = static_cast<double>(_count_elements/_size);
         }
       else
         {
           _lists[hash].erase_after(_lists[hash].before_begin());
-          _countElements--;
-          _loadFactor = static_cast<double>(_countElements/_size);
+          _count_elements--;
+          _load_factor = static_cast<double>(_count_elements/_size);
         }
     }
   }
-  ///операция приравнивания
-  HashMap& operator=(const HashMap& other)
-  {
-    for (size_t index = 0; index < other.Size(); index++)
-      {
-        if (other.GetHashMap()[index].empty())
-          {
-            auto first = other.GetHashMap()[index]->begin();
-            auto last = other.GetHashMap()[index]->end();
-            if (first == last)
-              {
-                insert(first->first,first->second);
-              }
-            else
-              {
-                do
-                  {
-                    insert(first->first,first->second);
-                    first++;
-                  }while(first!=last);
-              }
-          }
-      }
-    return *this;
-  }
+  ///операция приравнивания с семантикой копирования
+  HashMap& operator=(const HashMap& other) = default;
+
+  ///операция приравнивания с семантикой перемещения
+  HashMap& operator=(const HashMap&& other) = default;
 
   HashMap()
   {
-    SetConfigurations(_defSize);
+    SetConfigurations(_def_size);
   }
 
   HashMap(size_t size)
@@ -364,14 +344,18 @@ public:
     SetConfigurations(size);
   }
   ///конструктор копирования
-  HashMap(const HashMap& other)
+  HashMap(const HashMap& other):
+    _size(other._size),
+    _count_elements(other._count_elements),
+    _lists(other._lists),
+    _load_factor(other._load_factor)
   {
-    _size = other._size;
-    _countElements = other._countElements;
-    _lists = other._lists;
-    _loadFactor = other._loadFactor;
   }
-
+  ///конструктор перемещения
+  HashMap(const HashMap&& other) noexcept :
+   HashMap(std::move(other))
+  {
+  }
   ~HashMap()
   {
     for (size_t index = 0; index < this->_size;index++)

@@ -7,25 +7,24 @@
 
 int main()
 {
-    HashMap<std::string, int> map;
-    map.insert("apple",4);
-    map.insert("red",2);
-    map.insert("blue",3);
-    map.insert("red",3);
-    map.insert("apple",4);
-    map.insert("green",4);
-    map.insert("green",4);
-    for (size_t i = 0; i < map.capacity();i++)
-      {
-        std::cout << i << " ";
-        map[i];
-      }
-    map.erase("apple");
-    for (size_t i = 0; i < map.capacity();i++)
-      {
-        std::cout << i << " ";
-        map[i];
-      }
+  HashMap<std::string, int> map;
+  map.insert("apple",4);
+  map.insert("red",2);
+  map.insert("blue",3);
+  map.insert("red",3);
+  map.insert("apple",4);
+  map.insert("green",4);
+  map.insert("green",4);
+//  for (size_t i = 0; i < map.capacity();i++)
+//    {
+//      std::cout << i << " ";
+//      map[i];
+//    }
+//  map.erase("apple");
+//  for (auto it = map.begin(); it != map.end(); it++)
+//    {
+
+//    }
 //  std::unordered_map<std::string, int> map;
 
 //  map.insert(std::make_pair<std::string, int>("red",5));
