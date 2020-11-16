@@ -8,7 +8,6 @@
 #include <algorithm>
 #include <type_traits>
 
-
 ///
 ///@class Hashmap
 ///@param in Key Ключ
@@ -25,18 +24,67 @@ template<class Key,
          class Data>
 class HashMap
 {
+public:
+  friend class iterator;
+  ///итератор
+  class iterator:public std::iterator<std::input_iterator_tag,std::pair<Key,Data>>
+  {
+  private:
+    std::pair<Key,Data>* _ptr;
+    size_t _it_now;
+
+  public:
+    iterator():
+      _ptr(nullptr)
+    {}
+    iterator& operator++()
+    {
+      while (!_lists[_it_now].empty())
+        {
+          _it_now++;
+        }
+      _ptr = _lists[_it_now].begin();
+      return *this;
+    }
+    iterator& operator--()
+    {
+      while(!_lists[_it_now].empty())
+        {
+          _it_now--;
+        }
+      _ptr = _lists[_it_now].begin();
+      return *this;
+    }
+    iterator(const iterator& it):
+      _ptr(it._ptr)
+    {}
+    bool operator==(iterator& other)  const
+    {
+      return _ptr == other._ptr;
+    }
+    bool operator!=(iterator& other) const
+    {
+      return _ptr != other._ptr;
+    }
+//    class iterator::reference operator*()
+//    {
+//      return *_ptr;
+//    }
+  };
 private:
+  iterator _iterator;
   unsigned int _countElements;
   size_t _size;
   std::vector< std::forward_list< std::pair< const Key,Data > > > _lists;
   static constexpr size_t _defSize = 4;
   static constexpr double _growthFactor = 0.66;
   double _loadFactor;
+
   ///Функция рехеширования
   void rehash()
   {
-    std::pair<std::string, int> array[_countElements];
-    size_t iterator = 0;
+    std::pair<Key, Data> array[_countElements];
+    size_t index = 0;
     for (size_t index = 0; index < _size;index++)
       {
         if (!_lists[index].empty())
@@ -45,32 +93,31 @@ private:
             auto last = _lists[index].end();
             if (first == last)
               {
-              array[iterator] = &first;
-              iterator++;
+              array[index] = std::make_pair(first->first,first->second);
+              index++;
               }
             else
               {
                 do
                   {
-                    array[iterator] = *first;
-                    iterator++;
+                    array[index] = std::make_pair(first->first,first->second);
+                    index++;
                     first++;
                   }while(first!=last);
               }
           }
         _lists[index].clear();
-        std::forward_list<std::pair<Key,Data>> nodes;
-        _lists.push_back(nodes);
+        _lists.push_back(std::forward_list<std::pair<const Key,Data>>());
       }
     _size = _size * 2;
-    for (size_t index = 0; index < iterator; index++)
+    for (size_t i = 0; i < index; i++)
       {
-        size_t hash = HashFunction(array[index].first) % _size;
-        _lists[hash].push_front(array[index]);
+        size_t hash = HashFunction(array[i].first) % _size;
+        _lists[hash].push_front(array[i]);
       }
   }
   ///Хэш функция на основе стандартной
-  size_t HashFunction(Key key) const
+  size_t HashFunction(const Key key) const
   {
     return std::hash<Key>()(key) % _size;
   }
@@ -87,16 +134,17 @@ private:
   ///установка параметров HashMap
   void SetConfigurations(size_t size)
   {
+    _iterator = iterator();
     if (size < 0)
       {
         throw std::runtime_error("size must be positive(more then zero)");
       }
     this->_size = size;
     this->_countElements = 0;
-    this->_loadFactor = this->_countElements / this->_size;
-    for (size_t index = 0; index < this->_size; index++)
+    this->_loadFactor = static_cast<double>(_countElements/_countElements);
+    for (size_t index = 0; index < _size; index++)
       {
-        _lists.push_back(std::forward_list<std::pair<Key, Data>>());
+        _lists.push_back(std::forward_list<std::pair<const Key, Data>>());
       }
   }
   ///геттер контайнера
@@ -112,13 +160,37 @@ private:
   ///проверка на наличие ключа
   bool CheckKey(size_t hash) const
   {
-    return !_lists[hash]->empty();
+    return !_lists[hash].empty();
   }
 
 public:
-
+  iterator& begin()
+  {
+    if (_countElements != 0)
+    {
+    _iterator._it_now = 0;
+    while(!_lists[_iterator._it_now].empty())
+      {
+        _iterator._it_now++;
+      }
+    _iterator._ptr = _lists[_iterator._it_now].begin();
+    return _iterator;
+    }
+    else
+    {
+    _iterator._ptr = _lists[_size - 1];
+    _iterator._it_now = _size;
+    return _iterator;
+    }
+  }
+  iterator& end()
+  {
+    _iterator._it_now = _size;
+    _iterator._ptr = _lists[_size - 1] +1;
+    return _iterator;
+  }
   ///провряет отсутствие элементов
-  bool IsEmpty() const
+  bool empty() const
   {
     if (_size == 0)
       {
@@ -130,12 +202,12 @@ public:
       }
   }
   ///@return возвращает кол-во элементов в контайнере
-  size_t Size() const
+  size_t size() const
   {
     return _countElements;
   }
-  ///@return возвращает максимально допстимое кол-во элементов в контейнере
-  size_t Max_size() const
+  ///@return возвращает максимальную вместительность контейнера
+  size_t capacity() const
   {
     return _size;
   }
@@ -146,14 +218,14 @@ public:
       {
         rehash();
       }
-    std::pair<Key, Data> newData = std::make_pair(key, data);
+    std::pair<const Key, Data> newData = std::make_pair(key, data);
     size_t hash = HashFunction(key);
     _lists[hash].push_front(newData);
     _countElements++;
-    _loadFactor = (double)_countElements/_size;
+    _loadFactor = static_cast<double>(_countElements/_size);
   }
   ///находит элемент с конкретным ключом
-  std::pair<Key, Data>* Find(const Key key) const
+  std::pair<const Key, Data>* Find(const Key key) const
   {
     if (!CheckKey(HashFunction(key)))
       {
@@ -176,7 +248,7 @@ public:
   ///Представляет доступ к указаному жлементу по ключу
   Data& operator[](const Key key)
   {
-    std::pair<std::string, Data>* searchPair = Find(key);
+    std::pair<const Key, Data>* searchPair = Find(key);
     if (searchPair!=nullptr)
       {
         return searchPair->second;
@@ -212,7 +284,7 @@ public:
   ///предоставляет доступ к указаному элементу с проверкой индекса
   Data& at(const Key key) const
   {
-    std::pair<std::string, Data>* searchPair = Find(key);
+    std::pair<const Key, Data>* searchPair = Find(key);
     if(searchPair != nullptr)
       {
         return searchPair->second;
@@ -230,30 +302,29 @@ public:
       {
       if (LengthList(hash) > 1)
         {
-        std::forward_list<std::pair<Key, Data>>* list = _lists[hash];
-        auto before = list->before_begin();
-        auto node = list->begin();
-        while(node != list->end())
+        auto before = _lists[hash].before_begin();
+        auto node = _lists[hash].begin();
+        while(node != _lists[hash].end())
           {
             if (node->first == key)
               {
                 node++;
-                list->erase_after(before);
+                _lists[hash].erase_after(before);
                 _countElements--;
               }
             else
               {
+                before = node;
                 node++;
-                before++;
               }
           }
-        _loadFactor = (double)_countElements/_size;
+        _loadFactor = static_cast<double>(_countElements/_size);
         }
       else
         {
-          _lists[hash]->erase_after(_lists[hash]->before_begin());
+          _lists[hash].erase_after(_lists[hash].before_begin());
           _countElements--;
-          _loadFactor = (double)_countElements/_size;
+          _loadFactor = static_cast<double>(_countElements/_size);
         }
     }
   }
@@ -291,6 +362,14 @@ public:
   HashMap(size_t size)
   {
     SetConfigurations(size);
+  }
+  ///конструктор копирования
+  HashMap(const HashMap& other)
+  {
+    _size = other._size;
+    _countElements = other._countElements;
+    _lists = other._lists;
+    _loadFactor = other._loadFactor;
   }
 
   ~HashMap()

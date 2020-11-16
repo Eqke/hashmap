@@ -8,24 +8,32 @@
 int main()
 {
     HashMap<std::string, int> map;
-//  map.insert("red",2);
-//  map.insert("blue",3);
-//  map.insert("red",3);
-//  map.insert("appl",4);
-//  map.insert("green",4);
-//  map.insert("green",4);
-//  for (size_t i = 0; i < map.Max_size();i++)
-//    {
-//      std::cout << i << " ";
-//      map[i];
-//    }
-//  HashMap<std::string, int> map1 = map;
-//  for (size_t i = 0; i < map.Max_size();i++)
-//    {
-//      std::cout << i << " ";
-//      map1[i];
-//    }
-  std::vector<std::forward_list<std::pair<std::string, int>>> lists;
-  lists.push_back(std::forward_list<std::pair<std::string, int>>());
+    map.insert("apple",4);
+    map.insert("red",2);
+    map.insert("blue",3);
+    map.insert("red",3);
+    map.insert("apple",4);
+    map.insert("green",4);
+    map.insert("green",4);
+    for (size_t i = 0; i < map.capacity();i++)
+      {
+        std::cout << i << " ";
+        map[i];
+      }
+    map.erase("apple");
+    for (size_t i = 0; i < map.capacity();i++)
+      {
+        std::cout << i << " ";
+        map[i];
+      }
+//  std::unordered_map<std::string, int> map;
+
+//  map.insert(std::make_pair<std::string, int>("red",5));
+//  map.insert(std::make_pair<std::string, int>("red",3));
+//  map.insert(std::make_pair<std::string, int>("red",4));
+//  map.insert(std::make_pair<std::string, int>("blue",9));
+//  map.insert(std::make_pair<std::string, int>("blue",10));
+//  map.insert(std::make_pair<std::string, int>("green",7));
+//  std::cout << map.end()->first << " " << map.end()->second;
 }
 
