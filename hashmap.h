@@ -27,50 +27,95 @@ class HashMap
 public:
   friend class iterator;
   ///итератор
-  class iterator:public std::iterator<std::input_iterator_tag,std::pair<Key,Data>>
+  class iterator
   {
-  private:
-    std::pair<Key,Data>* _ptr;
-    size_t _it_now;
-
   public:
-    iterator():
-      _ptr(nullptr)
-    {}
-    iterator& operator++()
-    {
-      while (!_lists[_it_now].empty())
-        {
-          _it_now++;
-        }
-      _ptr = _lists[_it_now].begin();
-      return *this;
-    }
-    iterator& operator--()
-    {
-      while(!_lists[_it_now].empty())
-        {
-          _it_now--;
-        }
-      _ptr = _lists[_it_now].begin();
-      return *this;
-    }
-    iterator(const iterator& it):
-      _ptr(it._ptr)
-    {}
-    bool operator==(iterator& other)  const
-    {
-      return _ptr == other._ptr;
-    }
-//    bool operator!=(iterator& other) const
-//    {
-//      return _ptr != other._ptr;
-//    }
-//    class iterator::reference operator*()
-//    {
-//      return *_ptr;
-//    }
-  };
+      HashMap<Key,Data>* _father;
+      const std::pair<const Key, Data>* _ptr;
+      size_t _it_now;
+      iterator() = default;
+      iterator(HashMap<Key,Data>& father,size_t position = 0)
+        :_father(&father),
+          _it_now(position),
+          _ptr(nullptr)
+      {
+          if (_father->_lists[0].empty()){
+              _ptr = nullptr;
+          }
+          else{
+              _ptr = &(_father->_lists[0].begin());
+          }
+          _it_now = 0;
+      }
+      auto constexpr operator*()
+      {
+          return *_ptr;
+      }
+      auto constexpr operator++()
+      {
+          while(!*_father->_lists[_it_now].empty())
+            {
+              if (_it_now < _father->_size)
+                {
+                  _it_now++;
+                }
+            }
+          _ptr = &(_father->_lists[_it_now].begin());
+          return *this;
+      }
+
+      auto constexpr operator--()
+      {
+          while(!_father->_lists[_it_now].empty())
+            {
+              if (_it_now > 0)
+                {
+                  _it_now--;
+                }
+            }
+          _ptr = &(_father->_lists[_it_now].begin());
+          return *this;
+      }
+
+      constexpr bool operator==(iterator&& second)
+      {
+          return this->_ptr == second->_ptr;
+      }
+//      void first(){
+//          ptr = &*parent.buckets[parent.first_pos]->begin();
+//      };
+//      void end(){
+//          ptr = &*parent.buckets[parent.first_pos]->end();
+//      };
+//      void constexpr next(){
+//          size_t counter = pos;
+//          while(counter <= parent.last_pos){
+//              if(!parent.buckets[counter]->empty()){
+//                  auto current_bucket = parent.buckets[counter];
+//                  auto forward_iterator = current_bucket->begin();
+//                  size_t length = 0;
+//                  for (auto elem:*current_bucket){
+//                      length++;
+//                  }
+
+//                  if(length > 1 && ptr != &*current_bucket->end() ){
+//                      while(&*forward_iterator!=ptr){
+//                          forward_iterator++;
+//                      }
+//                      ptr = &*forward_iterator;
+//                      return;
+//                  }
+
+//                  this->ptr = &(parent.buckets[counter]->front());
+//                  pos = counter;
+//                  return;
+//              }
+//              counter++;
+//          }
+//      }
+
+//      void constexpr prev();
+      };
 private:
   iterator _iterator;
   unsigned int _count_elements;
@@ -166,28 +211,13 @@ private:
 public:
   iterator& begin()
   {
-    if (_count_elements != 0)
-    {
-    _iterator._it_now = 0;
-    while(!_lists[_iterator._it_now].empty())
-      {
-        _iterator._it_now++;
-      }
-    _iterator._ptr = _lists[_iterator._it_now].begin();
-    return _iterator;
-    }
-    else
-    {
-    _iterator._ptr = _lists[_size - 1];
-    _iterator._it_now = _size;
-    return _iterator;
-    }
+   iterator it_begin(_lists[0].begin());
+   return it_begin;
   }
   iterator& end()
   {
-    _iterator._it_now = _size;
-    _iterator._ptr = _lists[_size - 1] +1;
-    return _iterator;
+    iterator it_end(_lists[_size - 1] + 1);
+    return it_end;
   }
   ///провряет отсутствие элементов
   bool empty() const
@@ -225,7 +255,7 @@ public:
     _load_factor = static_cast<double>(_count_elements/_size);
   }
   ///находит элемент с конкретным ключом
-  std::pair<const Key, Data>* Find(const Key key) const
+  std::pair<const Key, Data>* Find(Key key)
   {
     if (!CheckKey(HashFunction(key)))
       {
@@ -248,15 +278,16 @@ public:
   ///Представляет доступ к указаному жлементу по ключу
   Data& operator[](const Key key)
   {
-    std::pair<const Key, Data>* searchPair = Find(key);
-    if (searchPair!=nullptr)
+    std::pair<const Key, Data>* search_pair = Find(key);
+    if (search_pair!=nullptr)
       {
-        return searchPair->second;
+        return search_pair->second;
       }
     else
       {
-        size_t hash = HashFunction(key);
-        _lists[hash].push_front(make_pair(key,Data()));
+        insert(key, Data());
+        search_pair = Find(key);
+        return search_pair->second;
       }
   }
   ///кастомный оператор для вывода
@@ -282,12 +313,12 @@ public:
     std::cout << "\n";
   }
   ///предоставляет доступ к указаному элементу с проверкой индекса
-  Data& at(const Key key) const
+  Data& at(const Key key)
   {
-    std::pair<const Key, Data>* searchPair = Find(key);
-    if(searchPair != nullptr)
+    std::pair<const Key, Data>* search_pair = Find(key);
+    if(search_pair != nullptr)
       {
-        return searchPair->second;
+        return search_pair->second;
       }
     else
       {
@@ -332,7 +363,7 @@ public:
   HashMap& operator=(const HashMap& other) = default;
 
   ///операция приравнивания с семантикой перемещения
-  HashMap& operator=(const HashMap&& other) = default;
+  HashMap& operator=(HashMap&& other) = default;
 
   HashMap()
   {
