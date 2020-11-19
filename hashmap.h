@@ -81,40 +81,7 @@ public:
       {
           return this->_ptr == second->_ptr;
       }
-//      void first(){
-//          ptr = &*parent.buckets[parent.first_pos]->begin();
-//      };
-//      void end(){
-//          ptr = &*parent.buckets[parent.first_pos]->end();
-//      };
-//      void constexpr next(){
-//          size_t counter = pos;
-//          while(counter <= parent.last_pos){
-//              if(!parent.buckets[counter]->empty()){
-//                  auto current_bucket = parent.buckets[counter];
-//                  auto forward_iterator = current_bucket->begin();
-//                  size_t length = 0;
-//                  for (auto elem:*current_bucket){
-//                      length++;
-//                  }
 
-//                  if(length > 1 && ptr != &*current_bucket->end() ){
-//                      while(&*forward_iterator!=ptr){
-//                          forward_iterator++;
-//                      }
-//                      ptr = &*forward_iterator;
-//                      return;
-//                  }
-
-//                  this->ptr = &(parent.buckets[counter]->front());
-//                  pos = counter;
-//                  return;
-//              }
-//              counter++;
-//          }
-//      }
-
-//      void constexpr prev();
       };
 private:
   iterator _iterator;
