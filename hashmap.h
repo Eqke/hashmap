@@ -29,69 +29,113 @@ public:
   ///итератор
   class iterator
   {
+  private:
+    HashMap<Key,Data>* _father;
+    std::pair<const Key, Data>* _ptr;
+    size_t _it_now;
   public:
-      HashMap<Key,Data>* _father;
-      const std::pair<const Key, Data>* _ptr;
-      size_t _it_now;
+      ///дефолтный конструктор
       iterator() = default;
-      iterator(HashMap<Key,Data>& father,size_t position = 0)
-        :_father(&father),
-          _it_now(position),
-          _ptr(nullptr)
+      ///конструктор с параметрами
+      iterator(HashMap<Key,Data>* father,size_t position)
+        :_father(father)
       {
-          if (_father->_lists[0].empty()){
-              _ptr = nullptr;
+        if (position != _father->last())
+          {
+          if (_father->_lists[position].empty())
+            {
+            _ptr = nullptr;
+            }
+          else
+            {
+            _ptr = &(*_father->_lists[position].begin());
+            }
+          _it_now = position;
           }
-          else{
-              _ptr = &(_father->_lists[0].begin());
+        else
+          {
+            _ptr = &(*_father->_lists[position].end());
+            _it_now = position;
           }
-          _it_now = 0;
       }
+      ///оператор разыменования
       auto constexpr operator*()
       {
-          return *_ptr;
+        if (_ptr == &(*_father->_lists[_father->last()].end()))
+          {
+            _ptr = &(*_father->_lists[_father->last()].begin());
+          }
+        return *_ptr;
       }
+      ///оператор инкремента через инт
+      auto constexpr operator++(int)
+      {
+        if (_it_now != _father->last())
+          {
+          _it_now++;
+          while(_father->_lists[_it_now].empty())
+            {
+              _it_now++;
+            }
+          _ptr = &(*_father->_lists[_it_now].begin());
+          }
+        else
+          {
+            _ptr = &(*_father->_lists[_it_now].end());
+          }
+          return *this;
+      }
+      ///оператор инкремента для автоопределение
       auto constexpr operator++()
       {
-          while(!*_father->_lists[_it_now].empty())
+        if (_it_now != _father->last())
+          {
+          _it_now++;
+          while(_father->_lists[_it_now].empty())
             {
-              if (_it_now < _father->_size)
-                {
-                  _it_now++;
-                }
+              _it_now++;
             }
-          _ptr = &(_father->_lists[_it_now].begin());
+          _ptr = &(*_father->_lists[_it_now].begin());
+          }
+        else
+          {
+            _ptr = &(*_father->_lists[_it_now].end());
+          }
           return *this;
       }
-
-      auto constexpr operator--()
+      ///оператор дикремента
+      auto constexpr operator--(int)
       {
-          while(!_father->_lists[_it_now].empty())
-            {
-              if (_it_now > 0)
-                {
-                  _it_now--;
-                }
-            }
-          _ptr = &(_father->_lists[_it_now].begin());
-          return *this;
+        _it_now--;
+        while(_father->_lists[_it_now].empty())
+          {
+            if (_it_now > 0)
+              {
+                _it_now--;
+              }
+          }
+        _ptr = &(*_father->_lists[_it_now].begin());
+        return *this;
       }
-
-      constexpr bool operator==(iterator&& second)
+      ///оператор равенства
+      constexpr bool operator==(const iterator& second) const
       {
-          return this->_ptr == second->_ptr;
+          return _ptr == second._ptr;
       }
-
-      };
+      ///оператор неравенства
+      constexpr bool operator!=(const iterator& second) const
+      {
+          return _ptr != second._ptr;
+      }
+  };
 private:
   iterator _iterator;
-  unsigned int _count_elements;
+  size_t _count_elements;
   size_t _size;
   std::vector< std::forward_list< std::pair< const Key,Data > > > _lists;
   static constexpr size_t _def_size = 4;
   static constexpr double _growth_factor = 0.66;
   double _load_factor;
-
   ///Функция рехеширования
   void rehash()
   {
@@ -128,6 +172,7 @@ private:
         _lists[hash].push_front(array[i]);
       }
   }
+
   ///Хэш функция на основе стандартной
   size_t HashFunction(const Key key) const
   {
@@ -151,9 +196,9 @@ private:
       {
         throw std::runtime_error("size must be positive(more then zero)");
       }
-    this->_size = size;
-    this->_count_elements = 0;
-    this->_load_factor = static_cast<double>(_count_elements/_count_elements);
+    _size = size;
+    _count_elements = 0;
+    _load_factor = static_cast<double>(_count_elements/_count_elements);
     for (size_t index = 0; index < _size; index++)
       {
         _lists.push_back(std::forward_list<std::pair<const Key, Data>>());
@@ -175,15 +220,46 @@ private:
     return !_lists[hash].empty();
   }
 
-public:
-  iterator& begin()
+  ///возвращает номер первого элемента
+  size_t first()
   {
-   iterator it_begin(_lists[0].begin());
+    size_t counter = 0;
+    for (auto list:_lists)
+      {
+        if(!list.empty())
+          {
+            return counter;
+          }
+        counter++;
+      }
+  }
+
+  ///возвращает номер последнего элемента
+  size_t last()
+  {
+    size_t last_index = 0;
+    for (size_t i = 0; i < _size ; i++)
+      {
+        if (!_lists[i].empty())
+          {
+            last_index = i;
+          }
+      }
+    return last_index;
+  }
+
+
+public:
+  ///итератор начала
+  iterator begin()
+  {
+   iterator it_begin(this,first());
    return it_begin;
   }
-  iterator& end()
+  ///итератор конца
+  iterator end()
   {
-    iterator it_end(_lists[_size - 1] + 1);
+    iterator it_end(this,last());
     return it_end;
   }
   ///провряет отсутствие элементов
@@ -209,7 +285,7 @@ public:
     return _size;
   }
   ///Вставка элемента
-  void insert(const Key key, Data data)
+  void insert(Key&& key, Data&& data)
   {
     if (_load_factor >= _growth_factor)
       {
@@ -222,7 +298,7 @@ public:
     _load_factor = static_cast<double>(_count_elements/_size);
   }
   ///находит элемент с конкретным ключом
-  std::pair<const Key, Data>* Find(Key key)
+  std::pair<const Key, Data>* find(Key&& key)
   {
     if (!CheckKey(HashFunction(key)))
       {
@@ -243,9 +319,9 @@ public:
       }
   }
   ///Представляет доступ к указаному жлементу по ключу
-  Data& operator[](const Key key)
+  Data& operator[](Key&& key)
   {
-    std::pair<const Key, Data>* search_pair = Find(key);
+    std::pair<const Key, Data>* search_pair = find(key);
     if (search_pair!=nullptr)
       {
         return search_pair->second;
@@ -253,7 +329,7 @@ public:
     else
       {
         insert(key, Data());
-        search_pair = Find(key);
+        search_pair = find(key);
         return search_pair->second;
       }
   }
@@ -264,6 +340,7 @@ public:
     {
       auto first = _lists[index].begin();
       auto last = _lists[index].end();
+//      std::cout << " (" << _lists[index].empty() << ") ";
       if (first == last)
         {
         std::cout << first->first;
@@ -280,9 +357,9 @@ public:
     std::cout << "\n";
   }
   ///предоставляет доступ к указаному элементу с проверкой индекса
-  Data& at(const Key key)
+  Data& at(Key&& key)
   {
-    std::pair<const Key, Data>* search_pair = Find(key);
+    std::pair<const Key, Data>* search_pair = find(key);
     if(search_pair != nullptr)
       {
         return search_pair->second;
@@ -293,7 +370,7 @@ public:
       }
   }
   ///удаление элементов по ключу
-  void erase(const Key key)
+  void erase(Key&& key)
   {
     const size_t hash = HashFunction(key);
     if (CheckKey(hash))
@@ -350,16 +427,8 @@ public:
   {
   }
   ///конструктор перемещения
-  HashMap(const HashMap&& other) noexcept :
-   HashMap(std::move(other))
-  {
-  }
-  ~HashMap()
-  {
-    for (size_t index = 0; index < this->_size;index++)
-      {
-        _lists[index].clear();
-      }
-    _lists.clear();
-  }
+  HashMap(HashMap&& other) = default;
+
+  ~HashMap() = default;
+
 };
