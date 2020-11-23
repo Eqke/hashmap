@@ -33,6 +33,7 @@ public:
     HashMap<Key,Data>* _father;
     std::pair<const Key, Data>* _ptr;
     size_t _it_now;
+    std::vector<std::string> _keys;
   public:
       ///дефолтный конструктор
       iterator() = default;
@@ -61,28 +62,57 @@ public:
       ///оператор разыменования
       auto constexpr operator*()
       {
-        if (_ptr == &(*_father->_lists[_father->last()].end()))
+        if (_keys.empty())
           {
-            _ptr = &(*_father->_lists[_father->last()].begin());
+            _keys.push_back(_ptr->first);
           }
         return *_ptr;
       }
       ///оператор инкремента через инт
       auto constexpr operator++(int)
       {
-        if (_it_now != _father->last())
-          {
-          _it_now++;
-          while(_father->_lists[_it_now].empty())
+          std::pair<const Key, Data>* ptr_other_key = nullptr;
+          auto it_fl = _father->_lists[_it_now].begin();
+          while (it_fl != _father->_lists[_it_now].end())
             {
-              _it_now++;
+              bool keyIs = false;
+              for (size_t i = 0; i < _keys.size(); i++)
+                {
+                  if (_keys[i] == it_fl->first)
+                    {
+                      keyIs = true;
+                      break;
+                    }
+                }
+              if (!keyIs)
+                {
+                  _keys.push_back(it_fl->first);
+                  ptr_other_key = &(*it_fl);
+                  break;
+                }
+              it_fl++;
             }
-          _ptr = &(*_father->_lists[_it_now].begin());
-          }
-        else
-          {
-            _ptr = &(*_father->_lists[_it_now].end());
-          }
+          if (!ptr_other_key)
+            {
+            if (_it_now != _father->last())
+              {
+              do
+                {
+                _it_now++;
+                }
+              while(_father->_lists[_it_now].empty());
+              _ptr = &(*_father->_lists[_it_now].begin());
+              _keys.push_back(_ptr->first);
+              }
+            else
+              {
+                _ptr = &(*_father->_lists[_it_now].end());
+              }
+            }
+          else
+            {
+              _ptr = ptr_other_key;
+            }
           return *this;
       }
       ///оператор инкремента для автоопределение
@@ -103,20 +133,6 @@ public:
           }
           return *this;
       }
-      ///оператор дикремента
-      auto constexpr operator--(int)
-      {
-        _it_now--;
-        while(_father->_lists[_it_now].empty())
-          {
-            if (_it_now > 0)
-              {
-                _it_now--;
-              }
-          }
-        _ptr = &(*_father->_lists[_it_now].begin());
-        return *this;
-      }
       ///оператор равенства
       constexpr bool operator==(const iterator& second) const
       {
@@ -135,7 +151,7 @@ private:
   std::vector< std::forward_list< std::pair< const Key,Data > > > _lists;
   static constexpr size_t _def_size = 4;
   static constexpr double _growth_factor = 0.66;
-  double _load_factor;
+  //double _load_factor;
   ///Функция рехеширования
   void rehash()
   {
@@ -250,6 +266,7 @@ private:
 
 
 public:
+  double _load_factor;
   ///итератор начала
   iterator begin()
   {
