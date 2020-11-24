@@ -152,7 +152,7 @@ private:
   static constexpr size_t _def_size = 1000;
   static constexpr double _growth_factor = 0.66;
   double _load_factor;
-  ///Функция рехеширования
+  ///Функция рехеширования rework
 //  void rehash()
 //  {
 //    std::pair<Key, Data> array[_count_elements];
