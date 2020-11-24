@@ -10,8 +10,8 @@
 
 ///
 ///@class Hashmap
-///@param in Key Ключ
-///@param in Data Значение
+///@param in key_type Ключ
+///@param in data_type Значение
 ///@private _count_elements Количество элементов
 ///@private _size Размер Hashmap
 ///@private _lists Сам контейнер, где будут находится данные
@@ -20,8 +20,8 @@
 ///@private _load_factor Фактор загруженности, показывает дейстительное отношение количества к размеру
 /// (считается, что это среднее число элементов одну ячейку контейнера
 
-template<class Key,
-         class Data>
+template<class key_type,
+         class data_type>
 class HashMap
 {
 public:
@@ -30,15 +30,15 @@ public:
   class iterator
   {
   private:
-    HashMap<Key,Data>* _father;
-    std::pair<const Key, Data>* _ptr;
+    HashMap<key_type,data_type>* _father;
+    std::pair<const key_type, data_type>* _ptr;
     size_t _it_now;
     std::vector<std::string> _keys;
   public:
       ///дефолтный конструктор
       iterator() = default;
       ///конструктор с параметрами
-      iterator(HashMap<Key,Data>* father,size_t position)
+      iterator(HashMap<key_type,data_type>* father,size_t position)
         :_father(father)
       {
         if (position != _father->last())
@@ -59,6 +59,12 @@ public:
             _it_now = position;
           }
       }
+      iterator(std::pair<const key_type, data_type>* ptr,size_t position, HashMap<key_type,data_type>* father)
+        :_father(father),
+        _it_now(position),
+        _ptr(ptr)
+      {}
+
       ///оператор разыменования
       auto constexpr operator*()
       {
@@ -71,7 +77,7 @@ public:
       ///оператор инкремента через инт
       auto constexpr operator++(int)
       {
-          std::pair<const Key, Data>* ptr_other_key = nullptr;
+          std::pair<const key_type, data_type>* ptr_other_key = nullptr;
           auto it_fl = _father->_lists[_it_now].begin();
           while (it_fl != _father->_lists[_it_now].end())
             {
@@ -148,14 +154,14 @@ private:
   iterator _iterator;
   size_t _count_elements;
   size_t _size;
-  std::vector< std::forward_list< std::pair< const Key,Data > > > _lists;
+  std::vector< std::forward_list< std::pair< const key_type,data_type > > > _lists;
   static constexpr size_t _def_size = 1000;
   static constexpr double _growth_factor = 0.66;
   double _load_factor;
   ///Функция рехеширования rework
 //  void rehash()
 //  {
-//    std::pair<Key, Data> array[_count_elements];
+//    std::pair<key_type, data_type> array[_count_elements];
 //    size_t index = 0;
 //    for (size_t index = 0; index < _size;index++)
 //      {
@@ -179,33 +185,23 @@ private:
 //              }
 //          }
 //        _lists[index].clear();
-//        _lists.push_back(std::forward_list<std::pair<const Key,Data>>());
+//        _lists.push_back(std::forward_list<std::pair<const key_type,data_type>>());
 //      }
 //    _size = _size * 2;
 //    for (size_t i = 0; i < index; i++)
 //      {
-//        size_t hash = HashFunction(array[i].first) % _size;
+//        size_t hash = hash_function(array[i].first) % _size;
 //        _lists[hash].push_front(array[i]);
 //      }
 //  }
 
   ///Хэш функция на основе стандартной
-  size_t HashFunction(const Key key) const
+  size_t hash_function(const key_type key) const
   {
-    return std::hash<Key>()(key) % _size;
-  }
-  ///подсчет элементов в листе
-  size_t LengthList(size_t hash) const
-  {
-    size_t count = 0;
-    for (auto node:_lists[hash])
-      {
-        count++;
-      }
-    return count;
+    return std::hash<key_type>()(key) % _size;
   }
   ///установка параметров HashMap
-  void SetConfigurations(size_t size)
+  void set_configurations(size_t size)
   {
     _iterator = iterator();
     if (size < 0)
@@ -217,11 +213,11 @@ private:
     _load_factor = static_cast<double>(_count_elements)/static_cast<double>(_count_elements);
     for (size_t index = 0; index < _size; index++)
       {
-        _lists.push_back(std::forward_list<std::pair<const Key, Data>>());
+        _lists.push_back(std::forward_list<std::pair<const key_type, data_type>>());
       }
   }
   ///геттер контайнера
-  std::vector<std::forward_list<std::pair<std::string,Data>>*> GetHashMap() const
+  std::vector<std::forward_list<std::pair<std::string,data_type>>*> GetHashMap() const
   {
     return _lists;
   }
@@ -231,7 +227,7 @@ private:
     return _size;
   }
   ///проверка на наличие ключа
-  bool CheckKey(size_t hash) const
+  bool key_exist(size_t hash) const
   {
     return !_lists[hash].empty();
   }
@@ -294,10 +290,10 @@ public:
     return _size;
   }
   ///@return возвращает кол-во элементов в контайнере
-  size_t count(const Key& key) const
+  size_t count(const key_type& key) const
   {
     size_t count_with_key = 0;
-    size_t hash = HashFunction(key);
+    size_t hash = hash_function(key);
     if (!_lists[hash].empty())
       {
         for (auto list:_lists[hash])
@@ -311,49 +307,50 @@ public:
     return count_with_key;
   }
   ///Вставка элемента
-  void insert(std::pair<const Key, Data>&& node)
+  void insert(std::pair<const key_type, data_type>&& node)
   {
 //    if (_load_factor >= _growth_factor)
 //      {
 //        rehash();
 //      }
-    size_t hash = HashFunction(node.first);
+    size_t hash = hash_function(node.first);
     _lists[hash].push_front(node);
     _count_elements++;
     _load_factor = static_cast<double>(_count_elements)/static_cast<double>(_size);
   }
   ///находит элемент с конкретным ключом
-  std::pair<const Key, Data>* find(const Key& key)
+  iterator find(const key_type& key)
   {
-    if (!CheckKey(HashFunction(key)))
+    size_t hash = hash_function(key);
+    if (!key_exist(hash))
       {
-        return nullptr;
+        return end();
       }
     else
       {
-        size_t hash = HashFunction(key);
-        auto node = _lists[hash].begin();
-        do
+        auto it = _lists[hash].begin();
+        while (it != _lists[hash].end())
           {
-            if (node->first == key)
+            if (it->first == key)
               {
-                return &(*node);
+                iterator returned_it(&(*it),hash,this);
+                return returned_it;
               }
-            node++;
-          }while(node != _lists[hash].end());
+            it++;
+          }
       }
   }
   ///Представляет доступ к указаному жлементу по ключу
-  Data& operator[](Key&& key)
+  data_type& operator[](key_type&& key)
   {
-    std::pair<const Key, Data>* search_pair = find(key);
+    std::pair<const key_type, data_type>* search_pair = find(key);
     if (search_pair!=nullptr)
       {
         return search_pair->second;
       }
     else
       {
-        insert(key, Data());
+        insert(key, data_type());
         search_pair = find(key);
         return search_pair->second;
       }
@@ -382,9 +379,9 @@ public:
     std::cout << "\n";
   }
   ///предоставляет доступ к указаному элементу с проверкой индекса
-  Data& at(const Key& key)
+  data_type& at(const key_type& key)
   {
-    std::pair<const Key, Data>* search_pair = find(key);
+    std::pair<const key_type, data_type>* search_pair = find(key);
     if(search_pair != nullptr)
       {
         return search_pair->second;
@@ -395,37 +392,33 @@ public:
       }
   }
   ///удаление элементов по ключу
-  void erase(const Key& key)
+  size_t erase(const key_type& key)
   {
-    const size_t hash = HashFunction(key);
-    if (CheckKey(hash))
-      {
-      if (LengthList(hash) > 1)
+    const size_t hash = hash_function(key);
+    if (key_exist(hash))
+    {
+      size_t counter = 0;
+      auto it = _lists[hash].begin();
+      auto before_it = _lists[hash].before_begin();
+      while (it != _lists[hash].end())
         {
-        auto before = _lists[hash].before_begin();
-        auto node = _lists[hash].begin();
-        while(node != _lists[hash].end())
-          {
-            if (node->first == key)
-              {
-                node++;
-                _lists[hash].erase_after(before);
-                _count_elements--;
-              }
-            else
-              {
-                before = node;
-                node++;
-              }
-          }
-        _load_factor = static_cast<double>(_count_elements)/static_cast<double>(_size);
+          if (it->first == key)
+            {
+              it++;
+              _lists[hash].erase_after(before_it);
+              _count_elements--;
+            }
+          else
+            {
+              before_it = it;
+              it++;
+            }
         }
-      else
-        {
-          _lists[hash].erase_after(_lists[hash].before_begin());
-          _count_elements--;
-          _load_factor = static_cast<double>(_count_elements)/static_cast<double>(_size);
-        }
+      _load_factor = static_cast<double>(_count_elements)/static_cast<double>(_size);
+    }
+    else
+    {
+       return 0;
     }
   }
   ///операция приравнивания с семантикой копирования
@@ -436,12 +429,12 @@ public:
 
   HashMap()
   {
-    SetConfigurations(_def_size);
+    set_configurations(_def_size);
   }
 
   HashMap(size_t size)
   {
-    SetConfigurations(size);
+    set_configurations(size);
   }
   ///конструктор копирования
   HashMap(const HashMap& other):
@@ -449,8 +442,7 @@ public:
     _count_elements(other._count_elements),
     _lists(other._lists),
     _load_factor(other._load_factor)
-  {
-  }
+  {}
   ///конструктор перемещения
   HashMap(HashMap&& other) = default;
 

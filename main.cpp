@@ -9,7 +9,7 @@
 int main()
 {
   HashMap<std::string, int> map;
-  map.insert(std::pair<std::string, int> ("apple",1));
+  map.insert(std::make_pair<std::string, int> ("apple",1));
   map.insert(std::pair<std::string, int> ("a",1));
   map.insert(std::pair<std::string, int> ("red",2));
   map.insert(std::pair<std::string, int> ("blue",3));
@@ -25,13 +25,13 @@ int main()
     {
     std::cout << it.operator*().first << " ";
     }
-  std::cout << "\n" << map.count("fiolet") << "\n";
-  map.erase("fiolet");
-  for (auto it = map.begin(); it != map.end(); it++)
-    {
-    std::cout << it.operator*().first << " ";
-    }
-  std::cout << "\n" << map.count("fiolet") << "\n";
+//  std::cout << "\n" << map.count("fiolet") << "\n";
+//    map.erase("fiolet");
+//  for (auto it = map.begin(); it != map.end(); it++)
+//    {
+//    std::cout << it.operator*().first << " ";
+//    }
+//  std::cout << "\n" << map.count("fiolet") << "\n";
 //  std::cout << "\n";
 //  for (size_t i = 0; i < map.size(); i++)
 //    {
@@ -39,8 +39,13 @@ int main()
 //      map[i];
 //    }
 //  std::cout << "welcome" << "\n";
-//    for (auto&& [key, value] : map) {
-//        std::cout << key << " " << value << "\n";
+    for (auto&& [key, value] : map) {
+        std::cout << key << " " << value << "\n";
+    }
+//  auto find = map.find("appl");
+//  if(find != map.end())
+//    {
+//  std::cout << find.operator*().first << "";
 //    }
 }
 
