@@ -149,45 +149,45 @@ private:
   size_t _count_elements;
   size_t _size;
   std::vector< std::forward_list< std::pair< const Key,Data > > > _lists;
-  static constexpr size_t _def_size = 4;
+  static constexpr size_t _def_size = 1000;
   static constexpr double _growth_factor = 0.66;
-  //double _load_factor;
+  double _load_factor;
   ///Функция рехеширования
-  void rehash()
-  {
-    std::pair<Key, Data> array[_count_elements];
-    size_t index = 0;
-    for (size_t index = 0; index < _size;index++)
-      {
-        if (!_lists[index].empty())
-          {
-            auto first = _lists[index].begin();
-            auto last = _lists[index].end();
-            if (first == last)
-              {
-              array[index] = std::make_pair(first->first,first->second);
-              index++;
-              }
-            else
-              {
-                do
-                  {
-                    array[index] = std::make_pair(first->first,first->second);
-                    index++;
-                    first++;
-                  }while(first!=last);
-              }
-          }
-        _lists[index].clear();
-        _lists.push_back(std::forward_list<std::pair<const Key,Data>>());
-      }
-    _size = _size * 2;
-    for (size_t i = 0; i < index; i++)
-      {
-        size_t hash = HashFunction(array[i].first) % _size;
-        _lists[hash].push_front(array[i]);
-      }
-  }
+//  void rehash()
+//  {
+//    std::pair<Key, Data> array[_count_elements];
+//    size_t index = 0;
+//    for (size_t index = 0; index < _size;index++)
+//      {
+//        if (!_lists[index].empty())
+//          {
+//            auto first = _lists[index].begin();
+//            auto last = _lists[index].end();
+//            if (first == last)
+//              {
+//              array[index] = std::make_pair(first->first,first->second);
+//              index++;
+//              }
+//            else
+//              {
+//                do
+//                  {
+//                    array[index] = std::make_pair(first->first,first->second);
+//                    index++;
+//                    first++;
+//                  }while(first!=last);
+//              }
+//          }
+//        _lists[index].clear();
+//        _lists.push_back(std::forward_list<std::pair<const Key,Data>>());
+//      }
+//    _size = _size * 2;
+//    for (size_t i = 0; i < index; i++)
+//      {
+//        size_t hash = HashFunction(array[i].first) % _size;
+//        _lists[hash].push_front(array[i]);
+//      }
+//  }
 
   ///Хэш функция на основе стандартной
   size_t HashFunction(const Key key) const
@@ -214,7 +214,7 @@ private:
       }
     _size = size;
     _count_elements = 0;
-    _load_factor = static_cast<double>(_count_elements/_count_elements);
+    _load_factor = static_cast<double>(_count_elements)/static_cast<double>(_count_elements);
     for (size_t index = 0; index < _size; index++)
       {
         _lists.push_back(std::forward_list<std::pair<const Key, Data>>());
@@ -263,10 +263,7 @@ private:
       }
     return last_index;
   }
-
-
 public:
-  double _load_factor;
   ///итератор начала
   iterator begin()
   {
@@ -291,31 +288,42 @@ public:
         return false;
       }
   }
-  ///@return возвращает кол-во элементов в контайнере
-  size_t size() const
-  {
-    return _count_elements;
-  }
   ///@return возвращает максимальную вместительность контейнера
-  size_t capacity() const
+  size_t size() const
   {
     return _size;
   }
-  ///Вставка элемента
-  void insert(Key&& key, Data&& data)
+  ///@return возвращает кол-во элементов в контайнере
+  size_t count(const Key& key) const
   {
-    if (_load_factor >= _growth_factor)
-      {
-        rehash();
-      }
-    std::pair<const Key, Data> newData = std::make_pair(key, data);
+    size_t count_with_key = 0;
     size_t hash = HashFunction(key);
-    _lists[hash].push_front(newData);
+    if (!_lists[hash].empty())
+      {
+        for (auto list:_lists[hash])
+          {
+            if (list.first == key)
+              {
+                count_with_key++;
+              }
+          }
+      }
+    return count_with_key;
+  }
+  ///Вставка элемента
+  void insert(std::pair<const Key, Data>&& node)
+  {
+//    if (_load_factor >= _growth_factor)
+//      {
+//        rehash();
+//      }
+    size_t hash = HashFunction(node.first);
+    _lists[hash].push_front(node);
     _count_elements++;
-    _load_factor = static_cast<double>(_count_elements/_size);
+    _load_factor = static_cast<double>(_count_elements)/static_cast<double>(_size);
   }
   ///находит элемент с конкретным ключом
-  std::pair<const Key, Data>* find(Key&& key)
+  std::pair<const Key, Data>* find(const Key& key)
   {
     if (!CheckKey(HashFunction(key)))
       {
@@ -374,7 +382,7 @@ public:
     std::cout << "\n";
   }
   ///предоставляет доступ к указаному элементу с проверкой индекса
-  Data& at(Key&& key)
+  Data& at(const Key& key)
   {
     std::pair<const Key, Data>* search_pair = find(key);
     if(search_pair != nullptr)
@@ -387,7 +395,7 @@ public:
       }
   }
   ///удаление элементов по ключу
-  void erase(Key&& key)
+  void erase(const Key& key)
   {
     const size_t hash = HashFunction(key);
     if (CheckKey(hash))
@@ -410,13 +418,13 @@ public:
                 node++;
               }
           }
-        _load_factor = static_cast<double>(_count_elements/_size);
+        _load_factor = static_cast<double>(_count_elements)/static_cast<double>(_size);
         }
       else
         {
           _lists[hash].erase_after(_lists[hash].before_begin());
           _count_elements--;
-          _load_factor = static_cast<double>(_count_elements/_size);
+          _load_factor = static_cast<double>(_count_elements)/static_cast<double>(_size);
         }
     }
   }

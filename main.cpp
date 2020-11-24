@@ -9,28 +9,38 @@
 int main()
 {
   HashMap<std::string, int> map;
-  map.insert("apple",1);
-  map.insert("a",1);
-  map.insert("red",2);
-  map.insert("blue",3);
-  map.insert("red",4);
-  map.insert("apple",5);
-  map.insert("green",6);
-  map.insert("green",7);
-  map.insert("purple",7);
-  map.insert("fiolet",10);
-  map.insert("fiolet",10);
-  map.insert("level",10);
+  map.insert(std::pair<std::string, int> ("apple",1));
+  map.insert(std::pair<std::string, int> ("a",1));
+  map.insert(std::pair<std::string, int> ("red",2));
+  map.insert(std::pair<std::string, int> ("blue",3));
+  map.insert(std::pair<std::string, int> ("red",4));
+  map.insert(std::pair<std::string, int> ("apple",5));
+  map.insert(std::pair<std::string, int> ("green",6));
+  map.insert(std::pair<std::string, int> ("green",7));
+  map.insert(std::pair<std::string, int> ("purple",7));
+  map.insert(std::pair<std::string, int> ("fiolet",10));
+  map.insert(std::pair<std::string, int> ("fiolet",10));
+  map.insert(std::pair<std::string, int> ("level",10));
   for (auto it = map.begin(); it != map.end(); it++)
     {
     std::cout << it.operator*().first << " ";
     }
-  std::cout << "\n";
-  for (size_t i = 0; i < map.capacity(); i++)
+  std::cout << "\n" << map.count("fiolet") << "\n";
+  map.erase("fiolet");
+  for (auto it = map.begin(); it != map.end(); it++)
     {
-      std::cout << i << ": ";
-      map[i];
+    std::cout << it.operator*().first << " ";
     }
-  std::cout << "welcome" << "\n";
+  std::cout << "\n" << map.count("fiolet") << "\n";
+//  std::cout << "\n";
+//  for (size_t i = 0; i < map.size(); i++)
+//    {
+//      std::cout << i << ": ";
+//      map[i];
+//    }
+//  std::cout << "welcome" << "\n";
+//    for (auto&& [key, value] : map) {
+//        std::cout << key << " " << value << "\n";
+//    }
 }
 
