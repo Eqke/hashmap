@@ -181,7 +181,7 @@ private:
   size_t _count_elements;
   size_t _size;
   std::vector< std::forward_list< std::pair< const key_type,data_type > > > _lists;
-  static constexpr size_t _def_size = 1000;
+  static constexpr size_t _def_size = 10;
   static constexpr double _growth_factor = 0.66;
   double _load_factor;
   ///Функция рехеширования rework
@@ -404,20 +404,43 @@ public:
         return end();
       }
   }
-  ///Представляет доступ к указаному жлементу по ключу
+  ///Представляет доступ к указаному жлементу по ключу ????
+//  data_type& operator[](const key_type& key)
+//  {
+//    iterator search_it = find(key);
+//    if (search_it!=end())
+//      {
+//        return search_it.operator*().second;
+//      }
+//    else
+//      {
+//        insert(std::pair<key_type, data_type> (key, data_type()));
+//        search_it = find(key);
+//        return search_it.operator*().second;
+//      }
+//  }
   data_type& operator[](const key_type& key)
   {
-    iterator search_it = find(key);
-    if (search_it!=end())
-      {
-        return search_it.operator*().second;
-      }
+    size_t hash = hash_function(key);
+    if (_lists[hash].empty())
+    {
+      insert(std::pair<key_type, data_type>(key, data_type()));
+      return _lists[hash].begin()->second;
+    }
     else
-      {
-        insert(std::pair<key_type, data_type> (key, data_type()));
-        search_it = find(key);
-        return search_it.operator*().second;
-      }
+    {
+        auto it = _lists[hash].begin();
+        while (it != _lists[hash].end())
+          {
+            if (it->first == key)
+              {
+                return it->second;
+              }
+            it++;
+          }
+        insert(std::pair<key_type, data_type>(key, data_type()));
+        return _lists[hash].begin()->second;
+    }
   }
   ///кастомный оператор для вывода
   void operator[](size_t index)
@@ -426,7 +449,6 @@ public:
     {
       auto first = _lists[index].begin();
       auto last = _lists[index].end();
-//      std::cout << " (" << _lists[index].empty() << ") ";
       if (first == last)
         {
         std::cout << first->first;
@@ -445,15 +467,25 @@ public:
   ///предоставляет доступ к указаному элементу с проверкой индекса
   data_type& at(const key_type& key)
   {
-    iterator search_it = find(key);
-    if(search_it != end())
-      {
-        return search_it.operator*().second;
-      }
+    size_t hash = hash_function(key);
+    if (_lists[hash].empty())
+    {
+      throw std::out_of_range("out of range");
+    }
     else
-      {
-        throw std::out_of_range("out of range");
-      }
+    {
+        auto it = _lists[hash].begin();
+        while (it != _lists[hash].end())
+          {
+            if (it->first == key)
+              {
+                return it->second;
+              }
+            it++;
+          }
+        insert(std::pair<key_type, data_type>(key, data_type()));
+        return _lists[hash].begin()->second;
+    }
   }
   ///удаление элементов по ключу
   size_t erase(const key_type& key)

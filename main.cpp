@@ -16,21 +16,32 @@ int main()
   map.insert(std::pair<std::string, int> ("green",2));
   map.insert(std::pair<std::string, int> ("green",5));
   map.insert(std::pair<std::string, int> ("blue",2));
-  map.insert(std::pair<std::string, int> ("fiolet",2));
-  for (auto it = map.begin(); it != map.end(); it++)
-    {
-      std::cout << it.operator*().first << " " << it.operator*().second << "\n";
-    }
-  std::cout << map.count("red") << " " << map.count("purple") << "\n";
-  map.erase("blue");
-  map.erase("re");
-  for (auto it = map.begin(); it != map.end(); it++)
-    {
-      std::cout << it.operator*().first << " " << it.operator*().second << "\n";
-    }
-  //::cout << map.find("red").operator*().second << "\n";
-//  std::cout << map.find("r").operator*().second << "\n";
-  std::cout << map["green"] << "\n";
+  map.insert(std::pair<std::string, int> ("fiolet",8));
+  map.insert(std::pair<std::string, int> ("appl",4));
+  std::cout << map["fiolet"] << " " << map.at("apple") << "\n";
+//  for (auto it = map.begin(); it != map.end(); it++)
+//    {
+//      std::cout << it.operator*().first << " " << it.operator*().second << "\n";
+//    }
+//  std::cout << map.count("red") << " " << map.count("purple") << "\n";
+//  map.erase("blue");
+//  map.erase("re");
+//  for (auto it = map.begin(); it != map.end(); it++)
+//    {
+//      std::cout << it.operator*().first << " " << it.operator*().second << "\n";
+//    }
+//  for (size_t i = 0; i < map.size(); i++)
+//    {
+//      std::cout << i << ": ";
+//      map[i];
+//    }
+//  std::cout << map["apple"] << "\n";
+//  for (size_t i = 0; i < map.size(); i++)
+//    {
+//      std::cout << i << ": ";
+//      map[i];
+//    }
+//  std::cout << map.at("green") << "\n";
 //  map.insert(std::make_pair<std::string, int> ("apple",1));
 //  map.insert(std::pair<std::string, int> ("a",1));
 //  map.insert(std::pair<std::string, int> ("red",2));
@@ -57,11 +68,7 @@ int main()
 //    }
 //  std::cout << "\n" << map.count("fiolet") << "\n";
 //  std::cout << "\n";
-//  for (size_t i = 0; i < map.size(); i++)
-//    {
-//      std::cout << i << ": ";
-//      map[i];
-//    }
+
 //  std::cout << "welcome" << "\n";
 //    for (auto&& [key, value] : map) {
 //        std::cout << key << " " << value << "\n";
