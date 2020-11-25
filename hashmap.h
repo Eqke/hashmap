@@ -38,10 +38,36 @@ public:
       ///дефолтный конструктор
       iterator() = default;
       ///конструктор с параметрами
-      iterator(HashMap<key_type,data_type>* father,size_t position)
+      iterator(HashMap<key_type,data_type>* father,size_t position, bool isEnd)
         :_father(father)
       {
-        if (position != _father->last())
+        if (_father->_count_elements == 0)
+          {
+            if (isEnd)
+              {
+                _ptr = &(*_father->_lists[position].end());
+                _it_now = position;
+              }
+            else
+              {
+                _ptr = &(*_father->_lists[position].begin());
+                _it_now = position;
+              }
+          }
+        else if ((position == _father->last()) && (position == _father->first()))
+          {
+            if (isEnd)
+              {
+                _ptr = &(*_father->_lists[position].end());
+                _it_now = position;
+              }
+            else
+              {
+                _ptr = &(*_father->_lists[position].begin());
+                _it_now = position;
+              }
+          }
+        else if (position != _father->last())
           {
           if (_father->_lists[position].empty())
             {
@@ -53,7 +79,7 @@ public:
             }
           _it_now = position;
           }
-        else
+        else if (position == _father->last())
           {
             _ptr = &(*_father->_lists[position].end());
             _it_now = position;
@@ -159,41 +185,41 @@ private:
   static constexpr double _growth_factor = 0.66;
   double _load_factor;
   ///Функция рехеширования rework
-//  void rehash()
-//  {
-//    std::pair<key_type, data_type> array[_count_elements];
-//    size_t index = 0;
-//    for (size_t index = 0; index < _size;index++)
-//      {
-//        if (!_lists[index].empty())
-//          {
-//            auto first = _lists[index].begin();
-//            auto last = _lists[index].end();
-//            if (first == last)
-//              {
-//              array[index] = std::make_pair(first->first,first->second);
-//              index++;
-//              }
-//            else
-//              {
-//                do
-//                  {
-//                    array[index] = std::make_pair(first->first,first->second);
-//                    index++;
-//                    first++;
-//                  }while(first!=last);
-//              }
-//          }
-//        _lists[index].clear();
-//        _lists.push_back(std::forward_list<std::pair<const key_type,data_type>>());
-//      }
-//    _size = _size * 2;
-//    for (size_t i = 0; i < index; i++)
-//      {
-//        size_t hash = hash_function(array[i].first) % _size;
-//        _lists[hash].push_front(array[i]);
-//      }
-//  }
+  void rehash()
+  {
+    std::pair<const key_type, data_type> array[_count_elements];
+    size_t index = 0;
+    for (size_t index = 0; index < _size;index++)
+      {
+        if (!_lists[index].empty())
+          {
+            auto first = _lists[index].begin();
+            auto last = _lists[index].end();
+            if (first == last)
+              {
+              array[index] = std::make_pair(first->first,first->second);
+              index++;
+              }
+            else
+              {
+                do
+                  {
+                    array[index] = std::make_pair(first->first,first->second);
+                    index++;
+                    first++;
+                  }while(first!=last);
+              }
+          }
+        _lists[index].clear();
+        _lists.push_back(std::forward_list<std::pair<const key_type,data_type>>());
+      }
+    _size = _size * 2;
+    for (size_t i = 0; i < index; i++)
+      {
+        size_t hash = hash_function(array[i].first);
+        _lists[hash].push_front(array[i]);
+      }
+  }
 
   ///Хэш функция на основе стандартной
   size_t hash_function(const key_type key) const
@@ -236,40 +262,48 @@ private:
   size_t first()
   {
     size_t counter = 0;
-    for (auto list:_lists)
+    if (_count_elements != 0)
       {
-        if(!list.empty())
-          {
-            return counter;
-          }
-        counter++;
+      for (auto list:_lists)
+        {
+          if(!list.empty())
+            {
+              return counter;
+            }
+          counter++;
+        }
       }
+        return counter;
   }
 
   ///возвращает номер последнего элемента
   size_t last()
   {
     size_t last_index = 0;
-    for (size_t i = 0; i < _size ; i++)
+    if (_count_elements != 0)
       {
-        if (!_lists[i].empty())
-          {
-            last_index = i;
-          }
+      for (size_t i = 0; i < _size ; i++)
+        {
+          if (!_lists[i].empty())
+            {
+              last_index = i;
+            }
+        }
+      return last_index;
       }
-    return last_index;
+    return _size - 1;
   }
 public:
   ///итератор начала
   iterator begin()
   {
-   iterator it_begin(this,first());
-   return it_begin;
+    iterator it_begin(this,first(),false);
+    return it_begin;
   }
   ///итератор конца
   iterator end()
   {
-    iterator it_end(this,last());
+    iterator it_end(this,last(),true);
     return it_end;
   }
   ///провряет отсутствие элементов
@@ -307,16 +341,45 @@ public:
     return count_with_key;
   }
   ///Вставка элемента
-  void insert(std::pair<const key_type, data_type>&& node)
+  std::pair<iterator, bool> insert (const std::pair<const key_type, data_type>& newd)
   {
 //    if (_load_factor >= _growth_factor)
 //      {
 //        rehash();
 //      }
-    size_t hash = hash_function(node.first);
-    _lists[hash].push_front(node);
-    _count_elements++;
-    _load_factor = static_cast<double>(_count_elements)/static_cast<double>(_size);
+    bool isCreated = false;
+    size_t hash = hash_function(newd.first);
+    if (!_lists[hash].empty())
+      {
+        auto it = _lists[hash].begin();
+        while(it != _lists[hash].end())
+          {
+            if (it->first == newd.first)
+              {
+                isCreated = true;
+                it->second = newd.second;
+                iterator returned_it(&(*it),hash,this);
+                return std::make_pair(returned_it, !isCreated);
+              }
+            it++;
+          }
+        if (!isCreated)
+          {
+            _lists[hash].push_front(newd);
+            _count_elements++;
+            _load_factor = static_cast<double>(_count_elements)/static_cast<double>(_size);
+            auto returned_it = find(newd.first);
+            return std::make_pair(returned_it, !isCreated);
+          }
+      }
+    else
+      {
+        _lists[hash].push_front(newd);
+        _count_elements++;
+        _load_factor = static_cast<double>(_count_elements)/static_cast<double>(_size);
+        auto returned_it = find(newd.first);
+        return std::make_pair(returned_it, !isCreated);
+      }
   }
   ///находит элемент с конкретным ключом
   iterator find(const key_type& key)
@@ -338,21 +401,22 @@ public:
               }
             it++;
           }
+        return end();
       }
   }
   ///Представляет доступ к указаному жлементу по ключу
-  data_type& operator[](key_type&& key)
+  data_type& operator[](const key_type& key)
   {
-    std::pair<const key_type, data_type>* search_pair = find(key);
-    if (search_pair!=nullptr)
+    iterator search_it = find(key);
+    if (search_it!=end())
       {
-        return search_pair->second;
+        return search_it.operator*().second;
       }
     else
       {
-        insert(key, data_type());
-        search_pair = find(key);
-        return search_pair->second;
+        insert(std::pair<key_type, data_type> (key, data_type()));
+        search_it = find(key);
+        return search_it.operator*().second;
       }
   }
   ///кастомный оператор для вывода
@@ -381,10 +445,10 @@ public:
   ///предоставляет доступ к указаному элементу с проверкой индекса
   data_type& at(const key_type& key)
   {
-    std::pair<const key_type, data_type>* search_pair = find(key);
-    if(search_pair != nullptr)
+    iterator search_it = find(key);
+    if(search_it != end())
       {
-        return search_pair->second;
+        return search_it.operator*().second;
       }
     else
       {
@@ -407,6 +471,7 @@ public:
               it++;
               _lists[hash].erase_after(before_it);
               _count_elements--;
+              counter++;
             }
           else
             {
@@ -415,6 +480,7 @@ public:
             }
         }
       _load_factor = static_cast<double>(_count_elements)/static_cast<double>(_size);
+      return counter;
     }
     else
     {
