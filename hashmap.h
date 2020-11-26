@@ -33,7 +33,7 @@ public:
     HashMap<key_type,data_type>* _father;
     std::pair<const key_type, data_type>* _ptr;
     size_t _it_now;
-    std::vector<std::string> _keys;
+    std::vector<key_type> _keys;
   public:
       ///дефолтный конструктор
       iterator() = default;
@@ -110,7 +110,7 @@ public:
               bool keyIs = false;
               for (size_t i = 0; i < _keys.size(); i++)
                 {
-                  if (_keys[i] == it_fl->first)
+                  if (std::equal_to(_keys[i], it_fl->first))
                     {
                       keyIs = true;
                       break;
@@ -157,7 +157,7 @@ public:
             bool keyIs = false;
             for (size_t i = 0; i < _keys.size(); i++)
               {
-                if (_keys[i] == it_fl->first)
+                if (std::equal_to(_keys[i], it_fl->first))
                   {
                     keyIs = true;
                     break;
@@ -361,7 +361,7 @@ public:
       {
         for (auto list:_lists[hash])
           {
-            if (list.first == key)
+            if (std::equal_to(list.first, key))
               {
                 count_with_key++;
               }
@@ -383,7 +383,7 @@ public:
         auto it = _lists[hash].begin();
         while(it != _lists[hash].end())
           {
-            if (it->first == newd.first)
+            if (std::equal_to(it->first, newd.first))
               {
                 isCreated = true;
                 it->second = newd.second;
@@ -423,7 +423,7 @@ public:
         auto it = _lists[hash].begin();
         while (it != _lists[hash].end())
           {
-            if (it->first == key)
+            if (std::equal_to(it->first, key))
               {
                 iterator returned_it(&(*it),hash,this);
                 return returned_it;
@@ -461,7 +461,7 @@ public:
         auto it = _lists[hash].begin();
         while (it != _lists[hash].end())
           {
-            if (it->first == key)
+            if (std::equal_to(it->first,key))
               {
                 return it->second;
               }
@@ -469,6 +469,28 @@ public:
           }
         insert(std::pair<key_type, data_type>(key, data_type()));
         return _lists[hash].begin()->second;
+    }
+  }
+
+  const data_type& operator[](const key_type& key) const
+  {
+    size_t hash = hash_function(key);
+    if (_lists[hash].empty())
+    {
+      throw std::out_of_range("map hasn't element with this key");
+    }
+    else
+    {
+        auto it = _lists[hash].begin();
+        while (it != _lists[hash].end())
+          {
+            if (std::equal_to(it->first, key))
+              {
+                return const_cast<const data_type&>(it->second);
+              }
+            it++;
+          }
+        throw std::out_of_range("map hasn't element with this key");
     }
   }
   ///кастомный оператор для вывода
@@ -506,7 +528,7 @@ public:
         auto it = _lists[hash].begin();
         while (it != _lists[hash].end())
           {
-            if (it->first == key)
+            if (std::equal_to(it->first, key))
               {
                 return it->second;
               }
@@ -527,7 +549,7 @@ public:
       auto before_it = _lists[hash].before_begin();
       while (it != _lists[hash].end())
         {
-          if (it->first == key)
+          if (std::equal_to(it->first, key))
             {
               it++;
               _lists[hash].erase_after(before_it);
