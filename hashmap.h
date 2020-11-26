@@ -150,20 +150,49 @@ public:
       ///оператор инкремента для автоопределение
       auto constexpr operator++()
       {
-        if (_it_now != _father->last())
+        std::pair<const key_type, data_type>* ptr_other_key = nullptr;
+        auto it_fl = _father->_lists[_it_now].begin();
+        while (it_fl != _father->_lists[_it_now].end())
           {
-          _it_now++;
-          while(_father->_lists[_it_now].empty())
+            bool keyIs = false;
+            for (size_t i = 0; i < _keys.size(); i++)
+              {
+                if (_keys[i] == it_fl->first)
+                  {
+                    keyIs = true;
+                    break;
+                  }
+              }
+            if (!keyIs)
+              {
+                _keys.push_back(it_fl->first);
+                ptr_other_key = &(*it_fl);
+                break;
+              }
+            it_fl++;
+          }
+        if (!ptr_other_key)
+          {
+          if (_it_now != _father->last())
             {
+            do
+              {
               _it_now++;
+              }
+            while(_father->_lists[_it_now].empty());
+            _ptr = &(*_father->_lists[_it_now].begin());
+            _keys.push_back(_ptr->first);
             }
-          _ptr = &(*_father->_lists[_it_now].begin());
+          else
+            {
+              _ptr = &(*_father->_lists[_it_now].end());
+            }
           }
         else
           {
-            _ptr = &(*_father->_lists[_it_now].end());
+            _ptr = ptr_other_key;
           }
-          return *this;
+        return *this;
       }
       ///оператор равенства
       constexpr bool operator==(const iterator& second) const
@@ -181,7 +210,7 @@ private:
   size_t _count_elements;
   size_t _size;
   std::vector< std::forward_list< std::pair< const key_type,data_type > > > _lists;
-  static constexpr size_t _def_size = 10;
+  static constexpr size_t _def_size = 1000;
   static constexpr double _growth_factor = 0.66;
   double _load_factor;
   ///Функция рехеширования rework
