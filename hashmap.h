@@ -110,7 +110,7 @@ public:
               bool keyIs = false;
               for (size_t i = 0; i < _keys.size(); i++)
                 {
-                  if (std::equal_to <const key_type>() (_keys[i], it_fl->first))
+                  if (std::equal_to <key_type>() (_keys[i], it_fl->first))
                     {
                       keyIs = true;
                       break;
@@ -159,7 +159,7 @@ public:
             for (size_t i = 0; i < _keys.size(); i++)
               {
 
-                if (std::equal_to <const key_type>() (_keys[i], it_fl->first))
+                if (std::equal_to <key_type>() (_keys[i], it_fl->first))
                   {
                     keyIs = true;
                     break;
@@ -363,7 +363,7 @@ public:
       {
         for (auto list:_lists[hash])
           {
-            if (std::equal_to <const key_type>() (list.first, key))
+            if (std::equal_to <key_type>() (list.first, key))
               {
                 count_with_key++;
               }
@@ -385,7 +385,7 @@ public:
         auto it = _lists[hash].begin();
         while(it != _lists[hash].end())
           {
-            if (std::equal_to <const key_type>() (it->first, newd.first))
+            if (std::equal_to <key_type>() (it->first, newd.first))
               {
                 isCreated = true;
                 it->second = newd.second;
@@ -425,7 +425,7 @@ public:
         auto it = _lists[hash].begin();
         while (it != _lists[hash].end())
           {
-            if (std::equal_to <const key_type>() (it->first, key))
+            if (std::equal_to <key_type>() (it->first, key))
               {
                 iterator returned_it(&(*it),hash,this);
                 return returned_it;
@@ -463,7 +463,7 @@ public:
         auto it = _lists[hash].begin();
         while (it != _lists[hash].end())
           {
-            if (std::equal_to <const key_type>() (it->first,key))
+            if (std::equal_to <key_type>() (it->first,key))
               {
                 return it->second;
               }
@@ -486,7 +486,7 @@ public:
         auto it = _lists[hash].begin();
         while (it != _lists[hash].end())
           {
-            if (std::equal_to <const key_type> (it->first, key))
+            if (std::equal_to <key_type> (it->first, key))
               {
                 return const_cast<const data_type&>(it->second);
               }
@@ -530,7 +530,7 @@ public:
         auto it = _lists[hash].begin();
         while (it != _lists[hash].end())
           {
-            if (std::equal_to <const key_type>() (it->first, key))
+            if (std::equal_to <key_type>() (it->first, key))
               {
                 return it->second;
               }
@@ -551,7 +551,7 @@ public:
       auto before_it = _lists[hash].before_begin();
       while (it != _lists[hash].end())
         {
-          if (std::equal_to <const key_type>() (it->first, key))
+          if (std::equal_to <key_type>() (it->first, key))
             {
               it++;
               _lists[hash].erase_after(before_it);
